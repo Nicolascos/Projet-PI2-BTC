@@ -1,0 +1,56 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment folders
+venv/
+.env/
+.env*/
+.venv/
+
+# Environment variable files
+*.env
+*.env.*
+
+# Data files
+*.csv
+*.xlsx
+*.xls
+*.xlsm
+
+# Logs and debug files
+*.log
+*.out
+*.err
+
+# IDE and editor settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Build and distribution
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Unit test / coverage reports
+.coverage
+htmlcov/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# Others
+.DS_Store
+Thumbs.db
+*.bak
+
+# Temporary files
+*.tmp
+*~
