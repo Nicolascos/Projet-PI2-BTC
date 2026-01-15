@@ -21,33 +21,39 @@ This project applies rigorous causal inference methods to understand what drives
 
 ```
 Projet-PI2-BTC/
-├── BTC_V3.ipynb                   # Latest iterative modeling notebook (Current Best Version)
-├── BTC_Prediction.ipynb           # Original base analysis notebook
-├── Three_Pillars_Dataset.csv      # Combined Master Dataset (Macro + On-Chain + Sentiment)
+├── src/                        # Source Code
+│   ├── data_ingestion/         # Scripts that fetch raw data (APIs)
+│   │   ├── onchain_coinmetrics.py
+│   │   ├── sentiment.py
+│   │   └── sentiment_fng_only.py
+│   ├── data_processing/        # Pipeline scripts that clean & merge data
+│   │   ├── create_master_dataset.py
+│   │   ├── finalize_onchain_dataset.py
+│   │   └── validate_sentiment.py
+│   └── analysis/               # Core analysis, models & causality
+│       ├── causality/          # Causal Inference Module
+│       ├── confusion_matrix_enhanced.py
+│       ├── horizon_analysis.py
+│       └── strategy_pivot.py
 │
-├── causality/                     # Causal Inference Module
-│   ├── causal_graph_V1.py         # Graphical Lasso implementation for causal skeleton
-│   └── determine_causal_arrows.py # Directionality tests (Granger Causality)
+├── notebooks/                  # Interactive Jupyter Notebooks
+│   ├── BTC_V3.ipynb            # Latest iterative modeling notebook (Current Best Version)
+│   ├── BTC_Prediction.ipynb    # Original base analysis notebook
+│   └── ...
 │
-├── final_data/                    # Processed & Cleaned Data
-│   ├── onchain_data_finalized.csv # On-chain metrics with NVT & derivatives
-│   ├── sentiment_dataset.csv      # Aggregated sentiment indicators
-│   └── clean_bitcoin_macro_dataset.csv
+├── data/                       # Data Storage
+│   ├── processed/              # Cleaned datasets
+│   │   ├── Three_Pillars_Dataset.csv  # Combined Master Dataset
+│   │   ├── onchain_data_finalized.csv
+│   │   └── sentiment_dataset.csv
+│   └── outputs/                # Generated Results
+│       ├── images/             # Plots (*.png)
+│       └── metrics/            # CSV Results & Reports
 │
-├── Data Pipeline Scripts
-│   ├── create_master_dataset.py   # Merges all data pillars into a single timeline
-│   ├── finalize_onchain_dataset.py # Computes advanced on-chain metrics
-│   ├── validate_sentiment.py      # Data integrity checks for sentiment feeds
-│   ├── onchain_coinmetrics.py     # CoinMetrics API fetcher
-│   ├── sentiment.py               # Sentiment data collection
-│   └── sentiment_fng_only.py      # Fear & Greed Index specific fetcher
+├── docs/                       # Project Documentation
+│   └── meeting_preparation_mathieu.md
 │
-├── Analysis & Evaluation
-│   ├── horizon_analysis.py        # Time-horizon sensitivity analysis
-│   ├── confusion_matrix_enhanced.py # Advanced performance metrics & regime analysis
-│   └── strategy_pivot.py          # Strategy implementation logic
-│
-└── ressources/                    # Research papers and reference docs
+└── resources/                  # Research papers and reference docs
 ```
 
 ---
@@ -93,13 +99,13 @@ Projet-PI2-BTC/
 conda activate pi2
 
 # Run horizon analysis
-python horizon_analysis.py
+python src/analysis/horizon_analysis.py
 
 # Run scenario analysis
-python confusion_matrix_enhanced.py
+python src/analysis/confusion_matrix_enhanced.py
 
 # Run causality tests
-cd causality && python determine_causal_arrows.py
+python src/analysis/causality/determine_causal_arrows.py
 ```
 
 ---
@@ -108,10 +114,10 @@ cd causality && python determine_causal_arrows.py
 
 | File | Description |
 |------|-------------|
-| `horizon_analysis_results.csv` | Top factors by time horizon |
-| `feature_importance_results.csv` | Full MDA cluster results |
-| `causality/partial_correlation_matrix.csv` | Causal skeleton |
-| `data_audit_report.txt` | Data selection documentation |
+| `data/outputs/metrics/horizon_analysis_results.csv` | Top factors by time horizon |
+| `data/outputs/metrics/feature_importance_results.csv` | Full MDA cluster results |
+| `data/outputs/metrics/partial_correlation_matrix.csv` | Causal skeleton |
+| `docs/data_audit_report.txt` | Data selection documentation |
 
 ---
 
