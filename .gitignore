@@ -19,6 +19,12 @@ venv/
 *.xls
 *.xlsm
 
+# Generated Plots & Images
+*.png
+*.jpg
+*.jpeg
+*.svg
+
 # Logs and debug files
 *.log
 *.out
@@ -54,3 +60,14 @@ Thumbs.db
 # Temporary files
 *.tmp
 *~
+
+# Project-specific temporary outputs
+temp_trends_*.csv
+sentiment_fng_dataset.csv
+onchain_data_coinmetrics.csv
+
+# Output images (can be regenerated)
+*.png
+
+# Conda environment
+.conda/
