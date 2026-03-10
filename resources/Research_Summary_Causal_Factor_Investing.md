@@ -24,21 +24,21 @@ Current factor investing literature suffers from a fundamental flaw: researchers
 
 ### The Three-Step Scientific Method
 
-**1. Phenomenological Step**[^2]
+**1. Phenomenological Step**
 
 Observe recurring patterns or anomalies in data. Document that variables X and Y are associated ($P[X = x, Y = y] \neq P[X = x]P[Y = y]$). This is purely descriptive—no explanation required yet.
 
-**2. Theoretical Step**[^2]
+**2. Theoretical Step**
 
 Propose a falsifiable causal mechanism explaining the observed association. The mechanism must specify the causal path from X to Y through measurable intermediate variables. This requires extra-statistical information and domain expertise.
 
-**3. Falsification Step**[^2]
+**3. Falsification Step**
 
 Design experiments to test each component of the proposed mechanism. Use interventional studies, natural experiments, or simulated interventions to verify that $P(Y = y | do[X = x]) > P[Y = y]$, meaning X genuinely causes Y.
 
 ### Understanding Causation vs. Association
 
-**The Do-Operator**[^2]
+**The Do-Operator**
 
 Pearl's do-operator distinguishes between:
 
@@ -47,7 +47,7 @@ Pearl's do-operator distinguishes between:
 
 Causation means intervening on X changes the probability distribution of Y, holding all else equal (ceteris paribus).
 
-**Causal Graphs (DAGs)**[^2]
+**Causal Graphs (DAGs)**
 
 Directed Acyclic Graphs visually represent causal structures, showing:
 
