@@ -1,132 +1,177 @@
 # A Causal Approach to Bitcoin Performance Modeling
 
-**PI2 Industrial Innovation Project**  
-*ESILV × Ginjer Asset Management*
+**PI2 Industrial Innovation Project**
+*ESILV x Ginjer Asset Management*
 
 ---
 
-## 📋 Project Overview
+## Project Overview
 
-This project applies rigorous causal inference methods to understand what drives Bitcoin returns, moving beyond traditional associational approaches. The goal is to design an interpretable investment strategy for institutional investors.
+This project applies causal inference to Bitcoin performance modeling, moving beyond correlational analysis to identify the true drivers of BTC returns. The theoretical framework combines:
+
+- **Lopez de Prado (2023)** — *"Causal Factor Investing"*: 3-step framework (Phenomenological, Theoretical, Falsification)
+- **Vaissie (2021)** — *"Bitcoin, un actif comme les autres?"*: 3-pillar categorization (On-Chain, Macro, Sentiment)
+
+**Partner:** Mathieu Vaissie, Ginjer Asset Management
 
 ### Key Objectives
-1. Identify **causal factors** (not just correlated) that drive BTC performance
-2. Analyze factor importance across different **time horizons** (daily, weekly, monthly)
-3. Build a **causal graph** to understand the true data-generating process
-4. Develop an **interpretable strategy** aligned with López de Prado's causal factor investing framework
+
+1. Identify **causal factors** (not merely correlated) driving BTC returns using 4 complementary discovery methods
+2. Analyze factor importance across **time horizons** (T+1, T+7, T+30) via Clustered MDA
+3. Build a **consensus causal graph** validated by DoWhy intervention tests
+4. Map results to Vaissie's 3-pillar framework for investment interpretation
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Projet-PI2-BTC/
-├── src/                        # Source Code
-│   ├── data_ingestion/         # Scripts that fetch raw data (APIs)
-│   │   ├── onchain_coinmetrics.py
-│   │   ├── sentiment.py
-│   │   └── sentiment_fng_only.py
-│   ├── data_processing/        # Pipeline scripts that clean & merge data
-│   │   ├── create_master_dataset.py
-│   │   ├── finalize_onchain_dataset.py
-│   │   └── validate_sentiment.py
-│   └── analysis/               # Core analysis, models & causality
-│       ├── causality/          # Causal Inference Module
-│       ├── confusion_matrix_enhanced.py
-│       ├── horizon_analysis.py
-│       └── strategy_pivot.py
+├── notebooks/
+│   ├── CausalAnalysis.ipynb          # Main deliverable — full causal pipeline
+│   ├── Analysis.ipynb                # Structured pipeline: load -> stationarity -> MDA -> classification
+│   ├── BTC_V3.ipynb                  # DoWhy CausalModel + ATE estimation
+│   ├── BTC_test.ipynb                # Experimental: deep learning, model comparison
+│   ├── CausalityTest.ipynb           # Original research notebook (reference only)
+│   ├── indicatorsMY_v02.xlsx         # Bloomberg multi-sheet data (22MB, gitignored)
+│   └── causal_graph_interactive.html # Interactive pyvis graph
 │
-├── notebooks/                  # Interactive Jupyter Notebooks
-│   ├── BTC_V3.ipynb            # Latest iterative modeling notebook (Current Best Version)
-│   ├── BTC_Prediction.ipynb    # Original base analysis notebook
-│   └── ...
+├── src/
+│   ├── data_ingestion/               # API data fetchers (CoinMetrics, Google Trends)
+│   ├── data_processing/              # Data cleaning & merging pipelines
+│   └── analysis/
+│       ├── horizon_analysis.py       # Clustered MDA across T+1/7/30 horizons
+│       └── confusion_matrix_enhanced.py  # 5-class scenario classification
 │
-├── data/                       # Data Storage
-│   ├── processed/              # Cleaned datasets
-│   │   ├── Three_Pillars_Dataset.csv  # Combined Master Dataset
-│   │   ├── onchain_data_finalized.csv
-│   │   └── sentiment_dataset.csv
-│   └── outputs/                # Generated Results
-│       ├── images/             # Plots (*.png)
-│       └── metrics/            # CSV Results & Reports
+├── reports/
+│   └── Causal_Analysis_Report.md     # Full report on CausalAnalysis.ipynb results
 │
-├── docs/                       # Project Documentation
-│   └── meeting_preparation_mathieu.md
+├── resources/                        # Reference papers
+│   ├── causal-factor-investing.pdf
+│   ├── Bitcoin un actif comme les autres - Mathieu Vaissie.pdf
+│   └── Research_Summary_Causal_Factor_Investing.md
 │
-└── resources/                  # Research papers and reference docs
+├── data/
+│   ├── processed/                    # Cleaned intermediate datasets
+│   └── outputs/metrics/              # MDA results, feature importance CSVs
+│
+└── CLAUDE.md                         # Detailed project conventions & design decisions
 ```
 
 ---
 
-## 🔬 Methodology
+## Data: Three Pillars
 
-### Three Pillars of Data
+| Pillar | Sources | Key Features | Dominant Horizon |
+|--------|---------|-------------|-----------------|
+| **On-Chain** | CoinMetrics, Blockchain.com | MVRV, HashRate, Mining Difficulty, TX Volume, Miner Revenue | Medium-term (weeks–months) |
+| **Macro** | Bloomberg | VIX, DXY, SPX, Nasdaq, Yield Curves, M2, Fed Funds Rate | Long-term (months+) |
+| **Sentiment** | Alternative.me, Google Trends | Fear & Greed, Stablecoin MCap, Exchange Balance, Search Interest | Short-term (days–weeks) |
+| **Crypto Market** | Bloomberg Alternatives + Futures | ETH, BNB, XRP, CFTC Bitcoin Futures Positioning | Cross-horizon |
 
-| Pillar | Source | Examples |
-|--------|--------|----------|
-| **On-Chain** | CoinMetrics | MVRV, HashRate, Active Addresses |
-| **Sentiment** | Google Trends, Alternative.me | Search trends, Fear & Greed Index |
-| **Macro** | Bloomberg/FRED | Interest rates, DXY, Gold, Carry trades |
-
-### Causal Inference Pipeline
-
-1. **MDA Ranking**: Cluster features, rank by Mean Decrease Accuracy
-2. **Granger Causality**: Determine directional causation
-3. **Partial Correlation**: Remove confounding effects (Graphical Lasso)
-4. **DAG Construction**: Build final causal graph (PC Algorithm)
-5. **Validation**: Intervention simulation via do-calculus
+35 features selected, each justified by Vaissie (2021), domain knowledge, or prior MDA analysis. See the justification table in `CausalAnalysis.ipynb`.
 
 ---
 
-## 🎯 Key Findings
+## Methodology
 
-### Factors That Pass the Causality Filter
-| Factor | Direction | Lag | Significance |
-|--------|-----------|-----|--------------|
-| **CapMVRVCur** (MVRV) | → Price | 1 day | p < 0.0001 |
-| **BlackRock Bitcoin** | → Price | 11 days | p = 0.0096 |
+### Lopez de Prado's 3-Step Framework
 
-### Factors That FAIL (Reverse Causation)
-- Active Addresses (AdrActCnt) — Price drives adoption, not reverse
-- Macro surprises (CESIJPY, CESIUSD) — BTC influences these indices
+**Step 1 — Phenomenological (observe associations):**
+- Stationarity via ADF+KPSS dual confirmation (first-diff for bounded features, pct_change for prices)
+- Correlation heatmap + hierarchical clustering dendrogram (Spearman, Ward linkage)
+- Clustered MDA feature importance across T+1, T+7, T+30 horizons
+
+**Step 2 — Theoretical (propose causal structures):**
+
+| Method | Type | Key Strength |
+|--------|------|-------------|
+| **PC Algorithm** | Constraint-based | Handles high dimensions; orients edges via v-structures |
+| **NOTEARS** | Score-based (continuous) | Produces edge weights; continuous DAG optimization |
+| **PCMCI** | Temporal constraint-based | Detects lagged causes; controls for autocorrelation |
+| **Granger Causality** | Predictive | Bidirectional lag detection; simple and interpretable |
+
+**Consensus rule:** A feature must be detected by **2+ of 4 methods** to be a causal candidate.
+
+**Step 3 — Falsification (test with interventions):**
+- DoWhy Average Treatment Effect (ATE) at 7-day and 30-day horizons
+- 3 refutation tests: Placebo treatment, Random common cause, Data subset
+- Feature must pass **2/3 refutations** to be validated
 
 ---
 
-## 🚀 Quick Start
+## Key Findings
+
+### 10 Validated Causal Drivers of Bitcoin
+
+| Category | Feature | Methods (of 4) | DoWhy Status |
+|----------|---------|:-:|---------|
+| **On-Chain** | CapMVRVCur (MVRV) | 3 | Survived |
+| On-Chain | miner_revenue_usd | 2 | Survived |
+| On-Chain | mining_difficulty | 2 | Survived |
+| On-Chain | est_tx_volume_usd | 2 | Survived |
+| **Sentiment** | total_stablecoin_mcap | 2 | Survived |
+| Sentiment | Coinbase (Google Trends) | 2 | Survived |
+| Sentiment | Bitcoin (Google Trends) | 2 | Survived |
+| **Crypto Market** | XETUSD (ETH) | 3 | Survived |
+| Crypto Market | XBNUSD (BNB) | 2 | Survived |
+| Crypto Market | XRPUSD (XRP) | 2 | Survived |
+
+**Macro (0 features survived):** Despite showing correlations, no macro feature passed both the multi-method consensus and DoWhy refutation.
+
+### Notable Finding: Fear & Greed is Reverse Causal
+
+`fear_and_greed` shows strong contemporaneous correlation (+0.71 via PCMCI) but is **reverse Granger causal** — BTC price drives sentiment, not the other way around. It is a lagging indicator, not a leading one.
+
+### MDA Horizon Analysis Validates Vaissie's Framework
+
+| Horizon | Top Feature | Category | Interpretation |
+|---------|------------|----------|---------------|
+| T+1 (short) | CapMVRVCur | On-Chain | Valuation signal dominates at daily scale |
+| T+7 (medium) | total_stablecoin_mcap | Sentiment | "Dry powder" deployment drives weekly moves |
+| T+30 (long) | FARBAST Index | Macro | Monetary policy stance drives monthly trends |
+
+---
+
+## Quick Start
 
 ```bash
 # Activate environment
 conda activate pi2
 
-# Run horizon analysis
+# Run the main causal analysis notebook
+jupyter notebook notebooks/CausalAnalysis.ipynb
+
+# Run horizon analysis (MDA across T+1/7/30)
 python src/analysis/horizon_analysis.py
 
-# Run scenario analysis
+# Run 5-class scenario classification
 python src/analysis/confusion_matrix_enhanced.py
-
-# Run causality tests
-python src/analysis/causality/determine_causal_arrows.py
 ```
+
+### Requirements
+
+Python 3.12 (conda env `pi2`). Key dependencies: pandas, numpy, scikit-learn, scipy, statsmodels, matplotlib, seaborn, networkx, dowhy, causal-learn, tigramite, notears, pyvis.
 
 ---
 
-## 📊 Output Files
+## Output Files
 
 | File | Description |
 |------|-------------|
-| `data/outputs/metrics/horizon_analysis_results.csv` | Top factors by time horizon |
-| `data/outputs/metrics/feature_importance_results.csv` | Full MDA cluster results |
-| `data/outputs/metrics/partial_correlation_matrix.csv` | Causal skeleton |
-| `docs/data_audit_report.txt` | Data selection documentation |
+| `data/outputs/metrics/horizon_analysis_results.csv` | Cluster-level MDA by horizon |
+| `data/outputs/metrics/horizon_feature_importance.csv` | Per-feature MDA importance |
+| `notebooks/causal_graph_interactive.html` | Interactive consensus causal graph (pyvis) |
+| `reports/Causal_Analysis_Report.md` | Full methodology & results report |
 
 ---
 
-## 👥 Team & Partners
+## Team & Partners
 
-- **Academic Partner**: ESILV La Défense
-- **Industry Partner**: Ginjer Asset Management
-- **Framework**: López de Prado Causal Factor Investing + Mathieu Vaissié Bitcoin Research
+- **Academic Partner:** ESILV La Defense
+- **Industry Partner:** Ginjer Asset Management (Mathieu Vaissie)
+- **Framework:** Lopez de Prado *Causal Factor Investing* (2023) + Vaissie *Bitcoin, un actif comme les autres?* (2021)
 
 ---
 
-*Last updated: January 2026*
+*Last updated: March 2026*
